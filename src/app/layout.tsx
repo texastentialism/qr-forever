@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -15,8 +16,11 @@ const SITE_URL =
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  alternates: {
+    canonical: "/",
+  },
   title: {
-    default: "QR Forever — QR codes that never expire",
+    default: "QR Forever — Free QR Code Generator That Never Expires",
     template: "%s · QR Forever",
   },
   description:
@@ -75,6 +79,7 @@ export default function RootLayout({
         style={{ backgroundColor: "#fafaf7" }}
       >
         {children}
+        <Analytics />
       </body>
     </html>
   );

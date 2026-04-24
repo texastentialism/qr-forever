@@ -433,8 +433,8 @@ export default function Generator() {
   return (
     <>
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_440px] gap-8">
-        {/* LEFT: controls */}
-        <div className="space-y-6">
+        {/* LEFT: controls (renders SECOND on mobile so downloads stay above the fold) */}
+        <div className="space-y-6 order-2 lg:order-1">
           {/* URL input */}
           <section className="bg-white rounded-2xl border border-neutral-200 p-5 shadow-sm">
             <div className="flex items-center justify-between mb-2">
@@ -456,18 +456,21 @@ export default function Generator() {
             <div className="relative">
               <input
                 id="url"
-                type="text"
+                type="url"
+                inputMode="url"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="porchlightstudios.com/book"
                 autoComplete="off"
+                autoCapitalize="none"
+                autoCorrect="off"
                 spellCheck={false}
-                className={`w-full px-4 py-3 pr-28 rounded-xl border outline-none text-base transition-colors ${
+                className={`w-full px-4 py-3 pr-28 rounded-xl border text-base transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 ${
                   url === ""
-                    ? "border-neutral-300 focus:border-neutral-900"
+                    ? "border-neutral-300 focus:border-neutral-900 focus:ring-neutral-900"
                     : urlIsValid
-                    ? "border-emerald-400 focus:border-emerald-500"
-                    : "border-amber-300 focus:border-amber-400"
+                    ? "border-emerald-400 focus:border-emerald-500 focus:ring-emerald-500"
+                    : "border-amber-300 focus:border-amber-400 focus:ring-amber-400"
                 }`}
               />
               {url !== "" && (
@@ -698,8 +701,8 @@ export default function Generator() {
           </details>
         </div>
 
-        {/* RIGHT: preview + downloads */}
-        <aside className="lg:sticky lg:top-6 lg:self-start space-y-4">
+        {/* RIGHT: preview + downloads (renders FIRST on mobile so the primary action is reachable without scrolling) */}
+        <aside className="lg:sticky lg:top-6 lg:self-start space-y-4 order-1 lg:order-2">
           <div className="bg-white rounded-2xl border border-neutral-200 p-5 shadow-sm">
             <div className="flex items-center justify-between mb-3">
               <div className="text-sm font-medium text-neutral-700">
@@ -956,11 +959,13 @@ function ColorPair({
   onChange,
   disabled,
   displayValue,
+  ariaLabel,
 }: {
   value: string;
   onChange: (v: string) => void;
   disabled?: boolean;
   displayValue?: string;
+  ariaLabel?: string;
 }) {
   return (
     <div className="flex items-center gap-2">
@@ -969,14 +974,16 @@ function ColorPair({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
-        className="size-9 rounded border border-neutral-300 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed bg-transparent"
+        aria-label={ariaLabel ? `${ariaLabel} — color picker` : "Color picker"}
+        className="h-11 w-11 rounded border border-neutral-300 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed bg-transparent focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:ring-offset-1"
       />
       <input
         type="text"
         value={displayValue ?? value}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
-        className="flex-1 min-w-0 px-2 py-1.5 text-sm rounded border border-neutral-300 font-mono disabled:bg-neutral-100 disabled:text-neutral-400"
+        aria-label={ariaLabel ? `${ariaLabel} — hex value` : "Color hex value"}
+        className="flex-1 min-w-0 px-2 py-1.5 text-sm rounded border border-neutral-300 font-mono disabled:bg-neutral-100 disabled:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:ring-offset-1"
       />
     </div>
   );

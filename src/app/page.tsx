@@ -14,7 +14,7 @@ export default function Home() {
                 QR Forever
               </h1>
               <p className="text-sm text-neutral-500">
-                QR codes that never expire · No accounts · No tracking · Free
+                QR codes that never expire · No accounts · Free
               </p>
             </div>
           </div>
