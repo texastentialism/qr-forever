@@ -28,6 +28,7 @@ import {
   writeHistory,
   type HistoryEntry,
 } from "@/lib/history";
+import { getSyncToken, syncEntry } from "@/lib/sync";
 
 type Preset = {
   id: string;
@@ -314,8 +315,8 @@ export default function Generator() {
 
   function saveToHistory() {
     if (!urlIsValid) return;
-    setHistory((h) =>
-      addHistory(h, {
+    setHistory((h) => {
+      const next = addHistory(h, {
         url: normalizedUrl,
         style: {
           presetId,
@@ -330,8 +331,15 @@ export default function Generator() {
           logoSize,
           logoHideDots,
         },
-      })
-    );
+      });
+      // Fire-and-forget cloud sync if signed in — failures don't block the user
+      if (getSyncToken() && next[0] !== h[0]) {
+        syncEntry(next[0]).catch(() => {
+          /* silent — local is the source of truth */
+        });
+      }
+      return next;
+    });
   }
 
   async function handleDownload(
