@@ -145,7 +145,39 @@ export default function HistoryPanel({
             Private by design. Nothing leaves your device.
           </span>
         </p>
-      ) : (
+      ) : null}
+
+      {entries.length > 0 && (
+        <div className="mb-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3 text-xs text-neutral-600 leading-relaxed">
+          <span className="font-medium text-neutral-800">
+            Heads up —
+          </span>{" "}
+          this list lives in THIS browser on THIS device. If you clear your
+          browser data, switch to a different browser, or use a different
+          computer/phone, you won{"'"}t see these QRs there.{" "}
+          <strong className="text-neutral-800">
+            Hit &quot;Export&quot; to download a backup file
+          </strong>
+          {" "}
+          (save it to Google Drive, email it to yourself, etc.) — you can{" "}
+          <strong className="text-neutral-800">&quot;Import&quot;</strong> it
+          later on any device to get all your QRs back and edit / re-download
+          any of them.{" "}
+          <br />
+          <span className="text-neutral-500">
+            (Working on proper accounts to remove this step — see{" "}
+            <a
+              href="/sign-in"
+              className="underline hover:text-neutral-900"
+            >
+              family sync
+            </a>
+            .)
+          </span>
+        </div>
+      )}
+
+      {entries.length === 0 ? null : (
         <ul className="space-y-1.5 max-h-96 overflow-y-auto -mx-1 px-1">
           {entries.map((entry) => (
             <li
