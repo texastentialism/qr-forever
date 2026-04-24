@@ -70,7 +70,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geistSans.variable} h-full antialiased`}>
-      <body className="min-h-full bg-neutral-50 text-neutral-900 flex flex-col">
+      <body
+        className="min-h-full text-neutral-900 flex flex-col"
+        style={{ backgroundColor: "#fafaf7" }}
+      >
         {children}
       </body>
     </html>

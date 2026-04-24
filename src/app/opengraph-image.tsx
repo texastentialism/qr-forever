@@ -53,6 +53,8 @@ export default async function Image() {
         <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
           <div
             style={{
+              display: "flex",
+              flexDirection: "column",
               fontSize: "92px",
               fontWeight: 700,
               letterSpacing: "-0.03em",
@@ -60,9 +62,8 @@ export default async function Image() {
               maxWidth: "900px",
             }}
           >
-            QR codes that
-            <br />
-            never expire.
+            <span>QR codes that</span>
+            <span>never expire.</span>
           </div>
           <div
             style={{
