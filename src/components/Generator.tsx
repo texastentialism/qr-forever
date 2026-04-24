@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type QRCodeStyling from "qr-code-styling";
 import type {
   DotType,
@@ -8,7 +8,15 @@ import type {
   CornerDotType,
   ErrorCorrectionLevel,
 } from "qr-code-styling";
-import { Download, Image as ImageIcon, Palette, Upload, X } from "lucide-react";
+import {
+  Check,
+  Download,
+  Image as ImageIcon,
+  Palette,
+  Sparkles,
+  Upload,
+  X,
+} from "lucide-react";
 
 type Preset = {
   id: string;
@@ -25,7 +33,7 @@ const PRESETS: Preset[] = [
   {
     id: "print-classic",
     label: "Print (black on white)",
-    description: "Standard print. Max scan reliability.",
+    description: "Max scan reliability. The safe default.",
     dotColor: "#000000",
     bgColor: "#FFFFFF",
     dotType: "square",
@@ -35,7 +43,7 @@ const PRESETS: Preset[] = [
   {
     id: "transparent-black",
     label: "Transparent · black",
-    description: "For light photos / light backgrounds.",
+    description: "For light photos & backgrounds.",
     dotColor: "#000000",
     bgColor: "transparent",
     dotType: "rounded",
@@ -45,7 +53,7 @@ const PRESETS: Preset[] = [
   {
     id: "transparent-white",
     label: "Transparent · white",
-    description: "For dark photos / dark backgrounds.",
+    description: "For dark photos & backgrounds.",
     dotColor: "#FFFFFF",
     bgColor: "transparent",
     dotType: "rounded",
@@ -65,7 +73,7 @@ const PRESETS: Preset[] = [
   {
     id: "dots-black",
     label: "Dots · black",
-    description: "Friendly, modern dot style.",
+    description: "Friendly, modern circle style.",
     dotColor: "#111111",
     bgColor: "#FFFFFF",
     dotType: "dots",
@@ -74,8 +82,8 @@ const PRESETS: Preset[] = [
   },
   {
     id: "warm",
-    label: "Warm · espresso",
-    description: "Deep brown on cream — for Porchlight.",
+    label: "Espresso · cream",
+    description: "Warm editorial palette.",
     dotColor: "#3B2A1A",
     bgColor: "#F7F1E8",
     dotType: "rounded",
@@ -84,8 +92,8 @@ const PRESETS: Preset[] = [
   },
   {
     id: "sage",
-    label: "Sage · forest",
-    description: "Muted natural palette.",
+    label: "Forest · linen",
+    description: "Muted, natural, calm.",
     dotColor: "#2F4F3A",
     bgColor: "#F3F4EB",
     dotType: "rounded",
@@ -95,7 +103,7 @@ const PRESETS: Preset[] = [
   {
     id: "indigo",
     label: "Indigo · cream",
-    description: "Editorial, confident.",
+    description: "Editorial & confident.",
     dotColor: "#1F2A57",
     bgColor: "#F6F1E7",
     dotType: "classy-rounded",
@@ -118,7 +126,22 @@ const CORNER_SQUARE_TYPES: CornerSquareType[] = [
   "extra-rounded",
 ];
 const CORNER_DOT_TYPES: CornerDotType[] = ["square", "dot"];
-const EC_LEVELS: ErrorCorrectionLevel[] = ["L", "M", "Q", "H"];
+
+const EXAMPLE_URLS = [
+  "https://porchlightstudios.com",
+  "https://tylerwig.com",
+  "https://pesqueeze.com",
+];
+
+function isLikelyUrl(v: string) {
+  if (!v) return false;
+  try {
+    const u = new URL(v.startsWith("http") ? v : `https://${v}`);
+    return Boolean(u.hostname && u.hostname.includes("."));
+  } catch {
+    return false;
+  }
+}
 
 function safeFilename(url: string, variant: string, ext: string) {
   const host = (() => {
@@ -133,7 +156,7 @@ function safeFilename(url: string, variant: string, ext: string) {
 }
 
 export default function Generator() {
-  const [url, setUrl] = useState("https://");
+  const [url, setUrl] = useState("");
   const [presetId, setPresetId] = useState(PRESETS[0].id);
   const [dotColor, setDotColor] = useState(PRESETS[0].dotColor);
   const [bgTransparent, setBgTransparent] = useState(false);
@@ -151,11 +174,20 @@ export default function Generator() {
   const [logoHideDots, setLogoHideDots] = useState(true);
   const [logoSize, setLogoSize] = useState(0.3);
 
+  const [toast, setToast] = useState<string | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const qrRef = useRef<HTMLDivElement | null>(null);
   const qrInstance = useRef<QRCodeStyling | null>(null);
   const [ready, setReady] = useState(false);
 
-  // Apply preset on change
+  const showToast = useCallback((msg: string) => {
+    setToast(msg);
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 2400);
+  }, []);
+
+  // Apply preset on change (but not on first mount - start neutral)
   useEffect(() => {
     const p = PRESETS.find((x) => x.id === presetId);
     if (!p) return;
@@ -172,13 +204,19 @@ export default function Generator() {
   }, [presetId]);
 
   const effectiveBg = bgTransparent ? "transparent" : bgColor;
+  const urlIsValid = isLikelyUrl(url);
+  const normalizedUrl = useMemo(() => {
+    if (!url) return "";
+    if (!/^https?:\/\//i.test(url)) return `https://${url}`;
+    return url;
+  }, [url]);
 
   const options = useMemo(
     () => ({
       width: 360,
       height: 360,
       type: "svg" as const,
-      data: url && url !== "https://" ? url : "https://example.com",
+      data: urlIsValid ? normalizedUrl : "https://example.com",
       margin,
       qrOptions: {
         errorCorrectionLevel: ecLevel,
@@ -207,7 +245,8 @@ export default function Generator() {
       },
     }),
     [
-      url,
+      urlIsValid,
+      normalizedUrl,
       margin,
       ecLevel,
       logoDataUrl,
@@ -247,39 +286,38 @@ export default function Generator() {
     qrInstance.current.update(options);
   }, [options]);
 
-  const hasUrl = url.trim() !== "" && url.trim() !== "https://";
-
   async function handleDownload(
     ext: "png" | "svg",
     variant: string,
-    overrides?: Partial<typeof options>
+    overrides?: Partial<typeof options>,
+    label?: string
   ) {
-    if (!qrInstance.current) return;
-    // Apply overrides temporarily, download, then restore
+    if (!qrInstance.current || !urlIsValid) return;
     const snapshot = options;
     qrInstance.current.update({ ...snapshot, ...overrides });
     await new Promise((r) => setTimeout(r, 50));
     qrInstance.current.download({
-      name: safeFilename(url, variant, ext).replace(`.${ext}`, ""),
+      name: safeFilename(normalizedUrl, variant, ext).replace(`.${ext}`, ""),
       extension: ext,
     });
-    // Restore live preview
     qrInstance.current.update(snapshot);
+    showToast(label ? `Downloaded ${label}` : `Downloaded .${ext}`);
   }
 
   async function handleHighResPng(variant: string, size: number) {
-    if (!qrInstance.current) return;
+    if (!qrInstance.current || !urlIsValid) return;
     const snapshot = options;
     qrInstance.current.update({ ...snapshot, width: size, height: size });
     await new Promise((r) => setTimeout(r, 80));
     qrInstance.current.download({
-      name: safeFilename(url, `${variant}-${size}px`, "png").replace(
+      name: safeFilename(normalizedUrl, `${variant}-${size}px`, "png").replace(
         ".png",
         ""
       ),
       extension: "png",
     });
     qrInstance.current.update(snapshot);
+    showToast(`Downloaded ${size}×${size} PNG`);
   }
 
   function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -290,350 +328,491 @@ export default function Generator() {
     reader.readAsDataURL(file);
   }
 
+  function handleExample() {
+    const pick = EXAMPLE_URLS[Math.floor(Math.random() * EXAMPLE_URLS.length)];
+    setUrl(pick);
+  }
+
+  // Cmd/Ctrl+Enter = primary download (PNG 1024)
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+        if (urlIsValid) {
+          e.preventDefault();
+          handleHighResPng("hi", 1024);
+        }
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlIsValid, options]);
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-8">
-      {/* LEFT: controls + preview */}
-      <div className="space-y-8">
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_440px] gap-8">
+      {/* LEFT: controls */}
+      <div className="space-y-6">
         {/* URL input */}
-        <section className="bg-white rounded-2xl border border-neutral-200 p-5">
-          <label
-            htmlFor="url"
-            className="block text-sm font-medium text-neutral-700 mb-2"
-          >
-            Destination URL
-          </label>
-          <input
-            id="url"
-            type="url"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            placeholder="https://porchlightstudios.com/book"
-            className="w-full px-4 py-3 rounded-xl border border-neutral-300 focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 outline-none text-base"
-          />
+        <section className="bg-white rounded-2xl border border-neutral-200 p-5 shadow-sm">
+          <div className="flex items-center justify-between mb-2">
+            <label
+              htmlFor="url"
+              className="block text-sm font-medium text-neutral-700"
+            >
+              Destination URL
+            </label>
+            <button
+              type="button"
+              onClick={handleExample}
+              className="text-xs text-neutral-500 hover:text-neutral-900 inline-flex items-center gap-1 transition-colors"
+            >
+              <Sparkles className="size-3" />
+              Try an example
+            </button>
+          </div>
+          <div className="relative">
+            <input
+              id="url"
+              type="text"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="porchlightstudios.com/book"
+              autoComplete="off"
+              spellCheck={false}
+              className={`w-full px-4 py-3 pr-11 rounded-xl border outline-none text-base transition-colors ${
+                url === ""
+                  ? "border-neutral-300 focus:border-neutral-900"
+                  : urlIsValid
+                  ? "border-emerald-400 focus:border-emerald-500"
+                  : "border-amber-300 focus:border-amber-400"
+              }`}
+            />
+            {url !== "" && (
+              <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                {urlIsValid ? (
+                  <Check className="size-5 text-emerald-500" />
+                ) : (
+                  <span className="text-xs text-amber-500 font-medium">
+                    incomplete
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
           <p className="mt-2 text-xs text-neutral-500">
-            This exact URL is encoded into the QR. Keep this URL live and your
-            QR keeps working — for years, decades, forever.
+            {urlIsValid ? (
+              <>
+                Will encode:{" "}
+                <span className="font-mono text-neutral-700">
+                  {normalizedUrl}
+                </span>
+              </>
+            ) : (
+              "This exact URL is baked into the QR. Keep the URL live — the QR keeps working."
+            )}
           </p>
         </section>
 
         {/* Presets */}
-        <section className="bg-white rounded-2xl border border-neutral-200 p-5">
+        <section className="bg-white rounded-2xl border border-neutral-200 p-5 shadow-sm">
           <h2 className="text-sm font-medium text-neutral-700 mb-3 flex items-center gap-2">
             <Palette className="size-4" />
-            Presets
+            Style
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
             {PRESETS.map((p) => (
-              <button
+              <PresetButton
                 key={p.id}
+                preset={p}
+                active={presetId === p.id}
                 onClick={() => setPresetId(p.id)}
-                className={`text-left p-3 rounded-xl border transition-all ${
-                  presetId === p.id
-                    ? "border-neutral-900 bg-neutral-900 text-white"
-                    : "border-neutral-200 hover:border-neutral-400 bg-white"
-                }`}
-              >
-                <div className="text-sm font-medium">{p.label}</div>
-                <div
-                  className={`text-xs mt-0.5 ${
-                    presetId === p.id ? "text-neutral-300" : "text-neutral-500"
-                  }`}
-                >
-                  {p.description}
-                </div>
-              </button>
+              />
             ))}
           </div>
         </section>
 
         {/* Advanced controls */}
-        <section className="bg-white rounded-2xl border border-neutral-200 p-5">
-          <h2 className="text-sm font-medium text-neutral-700 mb-4">
-            Fine-tune
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <Field label="Dot color">
-              <div className="flex items-center gap-2">
-                <input
-                  type="color"
-                  value={dotColor}
-                  onChange={(e) => setDotColor(e.target.value)}
-                  className="size-9 rounded border border-neutral-300 cursor-pointer"
-                />
-                <input
-                  type="text"
-                  value={dotColor}
-                  onChange={(e) => setDotColor(e.target.value)}
-                  className="flex-1 px-2 py-1.5 text-sm rounded border border-neutral-300 font-mono"
-                />
-              </div>
-            </Field>
-            <Field label="Background">
-              <div className="flex items-center gap-2">
-                <input
-                  type="color"
+        <details className="bg-white rounded-2xl border border-neutral-200 shadow-sm group">
+          <summary className="cursor-pointer select-none list-none p-5 flex items-center justify-between">
+            <span className="text-sm font-medium text-neutral-700">
+              Fine-tune
+            </span>
+            <span className="text-xs text-neutral-400 group-open:hidden">
+              Colors, dot shapes, error correction
+            </span>
+            <span className="text-xs text-neutral-400 hidden group-open:inline">
+              Click to collapse
+            </span>
+          </summary>
+          <div className="px-5 pb-5">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <Field label="Dot color">
+                <ColorPair value={dotColor} onChange={setDotColor} />
+              </Field>
+              <Field label="Background">
+                <ColorPair
                   value={bgColor}
-                  onChange={(e) => setBgColor(e.target.value)}
+                  onChange={setBgColor}
                   disabled={bgTransparent}
-                  className="size-9 rounded border border-neutral-300 cursor-pointer disabled:opacity-40"
+                  displayValue={bgTransparent ? "transparent" : undefined}
                 />
+                <label className="flex items-center gap-2 mt-2 text-xs text-neutral-600 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={bgTransparent}
+                    onChange={(e) => setBgTransparent(e.target.checked)}
+                    className="rounded"
+                  />
+                  Transparent
+                </label>
+              </Field>
+              <Field label="Dot style">
+                <Select
+                  value={dotType}
+                  onChange={(v) => setDotType(v as DotType)}
+                  options={DOT_TYPES}
+                />
+              </Field>
+              <Field label="Corner frame">
+                <Select
+                  value={cornerSquareType}
+                  onChange={(v) => setCornerSquareType(v as CornerSquareType)}
+                  options={CORNER_SQUARE_TYPES}
+                />
+              </Field>
+              <Field label="Corner dot">
+                <Select
+                  value={cornerDotType}
+                  onChange={(v) => setCornerDotType(v as CornerDotType)}
+                  options={CORNER_DOT_TYPES}
+                />
+              </Field>
+              <Field
+                label={`Error correction: ${ecLevel}`}
+                hint="Higher = more scannable if damaged. Q is a safe print default."
+              >
+                <Select
+                  value={ecLevel}
+                  onChange={(v) => setEcLevel(v as ErrorCorrectionLevel)}
+                  options={["L", "M", "Q", "H"]}
+                  labels={{
+                    L: "L — Low (~7%)",
+                    M: "M — Medium (~15%)",
+                    Q: "Q — Quartile (~25%)",
+                    H: "H — High (~30%)",
+                  }}
+                />
+              </Field>
+              <Field label={`Margin · ${margin}px`}>
                 <input
-                  type="text"
-                  value={bgTransparent ? "transparent" : bgColor}
-                  onChange={(e) => setBgColor(e.target.value)}
-                  disabled={bgTransparent}
-                  className="flex-1 px-2 py-1.5 text-sm rounded border border-neutral-300 font-mono disabled:bg-neutral-100"
+                  type="range"
+                  min={0}
+                  max={40}
+                  value={margin}
+                  onChange={(e) => setMargin(Number(e.target.value))}
+                  className="w-full accent-neutral-900"
                 />
-              </div>
-              <label className="flex items-center gap-2 mt-2 text-xs text-neutral-600">
-                <input
-                  type="checkbox"
-                  checked={bgTransparent}
-                  onChange={(e) => setBgTransparent(e.target.checked)}
-                />
-                Transparent
-              </label>
-            </Field>
-            <Field label="Dot style">
-              <select
-                value={dotType}
-                onChange={(e) => setDotType(e.target.value as DotType)}
-                className="w-full px-2 py-2 text-sm rounded border border-neutral-300 bg-white"
-              >
-                {DOT_TYPES.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </select>
-            </Field>
-            <Field label="Corner frame">
-              <select
-                value={cornerSquareType}
-                onChange={(e) =>
-                  setCornerSquareType(e.target.value as CornerSquareType)
-                }
-                className="w-full px-2 py-2 text-sm rounded border border-neutral-300 bg-white"
-              >
-                {CORNER_SQUARE_TYPES.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </select>
-            </Field>
-            <Field label="Corner dot">
-              <select
-                value={cornerDotType}
-                onChange={(e) =>
-                  setCornerDotType(e.target.value as CornerDotType)
-                }
-                className="w-full px-2 py-2 text-sm rounded border border-neutral-300 bg-white"
-              >
-                {CORNER_DOT_TYPES.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </select>
-            </Field>
-            <Field
-              label={`Error correction: ${ecLevel}`}
-              hint="Higher = more scannable if printed or damaged. Q is recommended for print."
-            >
-              <select
-                value={ecLevel}
-                onChange={(e) =>
-                  setEcLevel(e.target.value as ErrorCorrectionLevel)
-                }
-                className="w-full px-2 py-2 text-sm rounded border border-neutral-300 bg-white"
-              >
-                <option value="L">L — Low (~7%)</option>
-                <option value="M">M — Medium (~15%)</option>
-                <option value="Q">Q — Quartile (~25%, recommended)</option>
-                <option value="H">H — High (~30%)</option>
-              </select>
-            </Field>
-            <Field label={`Margin: ${margin}px`}>
-              <input
-                type="range"
-                min={0}
-                max={40}
-                value={margin}
-                onChange={(e) => setMargin(Number(e.target.value))}
-                className="w-full"
-              />
-            </Field>
+              </Field>
+            </div>
           </div>
-        </section>
+        </details>
 
         {/* Logo */}
-        <section className="bg-white rounded-2xl border border-neutral-200 p-5">
-          <h2 className="text-sm font-medium text-neutral-700 mb-3 flex items-center gap-2">
-            <ImageIcon className="size-4" />
-            Center logo (optional)
-          </h2>
-          <div className="flex items-start gap-4">
-            <label className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-300 hover:bg-neutral-50 cursor-pointer text-sm">
-              <Upload className="size-4" />
-              {logoDataUrl ? "Replace logo" : "Upload image"}
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleLogoUpload}
-              />
-            </label>
-            {logoDataUrl && (
-              <>
+        <details className="bg-white rounded-2xl border border-neutral-200 shadow-sm group">
+          <summary className="cursor-pointer select-none list-none p-5 flex items-center justify-between">
+            <span className="text-sm font-medium text-neutral-700 inline-flex items-center gap-2">
+              <ImageIcon className="size-4" />
+              Center logo
+              {logoDataUrl && (
+                <span className="ml-1 text-xs text-emerald-600 font-normal">
+                  · added
+                </span>
+              )}
+            </span>
+            <span className="text-xs text-neutral-400 group-open:hidden">
+              Optional
+            </span>
+          </summary>
+          <div className="px-5 pb-5">
+            <div className="flex items-start gap-4 flex-wrap">
+              <label className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-300 hover:bg-neutral-50 cursor-pointer text-sm transition-colors">
+                <Upload className="size-4" />
+                {logoDataUrl ? "Replace logo" : "Upload image"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleLogoUpload}
+                />
+              </label>
+              {logoDataUrl && (
+                <>
+                  <button
+                    onClick={() => setLogoDataUrl(null)}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-neutral-300 hover:bg-neutral-50 text-sm text-neutral-700 transition-colors"
+                  >
+                    <X className="size-4" /> Remove
+                  </button>
+                  <div className="flex-1 min-w-[200px] space-y-2">
+                    <Field label={`Size · ${Math.round(logoSize * 100)}%`}>
+                      <input
+                        type="range"
+                        min={0.1}
+                        max={0.5}
+                        step={0.01}
+                        value={logoSize}
+                        onChange={(e) => setLogoSize(Number(e.target.value))}
+                        className="w-full accent-neutral-900"
+                      />
+                    </Field>
+                    <label className="flex items-center gap-2 text-xs text-neutral-600 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={logoHideDots}
+                        onChange={(e) => setLogoHideDots(e.target.checked)}
+                        className="rounded"
+                      />
+                      Clear dots behind logo
+                    </label>
+                  </div>
+                </>
+              )}
+            </div>
+            {logoDataUrl && ecLevel !== "H" && (
+              <p className="mt-3 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-2.5">
+                Tip: with a logo, raise error correction to{" "}
                 <button
-                  onClick={() => setLogoDataUrl(null)}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-neutral-300 hover:bg-neutral-50 text-sm text-neutral-700"
+                  className="underline font-medium"
+                  onClick={() => setEcLevel("H")}
                 >
-                  <X className="size-4" /> Remove
-                </button>
-                <div className="flex-1 space-y-2">
-                  <Field label={`Size: ${Math.round(logoSize * 100)}%`}>
-                    <input
-                      type="range"
-                      min={0.1}
-                      max={0.5}
-                      step={0.01}
-                      value={logoSize}
-                      onChange={(e) => setLogoSize(Number(e.target.value))}
-                      className="w-full"
-                    />
-                  </Field>
-                  <label className="flex items-center gap-2 text-xs text-neutral-600">
-                    <input
-                      type="checkbox"
-                      checked={logoHideDots}
-                      onChange={(e) => setLogoHideDots(e.target.checked)}
-                    />
-                    Clear dots behind logo
-                  </label>
-                </div>
-              </>
+                  H (30%)
+                </button>{" "}
+                for best scan reliability.
+              </p>
             )}
           </div>
-          <p className="mt-3 text-xs text-neutral-500">
-            Tip: with a logo, use error correction H for maximum scan
-            reliability.
-          </p>
-        </section>
+        </details>
       </div>
 
       {/* RIGHT: preview + downloads */}
       <aside className="lg:sticky lg:top-6 lg:self-start space-y-4">
-        <div className="bg-white rounded-2xl border border-neutral-200 p-5">
-          <div className="text-sm font-medium text-neutral-700 mb-3">
-            Live preview
+        <div className="bg-white rounded-2xl border border-neutral-200 p-5 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-sm font-medium text-neutral-700">
+              Live preview
+            </div>
+            <div
+              className={`text-xs transition-opacity ${
+                urlIsValid ? "text-emerald-600" : "text-neutral-400"
+              }`}
+            >
+              {urlIsValid ? "Ready to download" : "Enter a URL"}
+            </div>
           </div>
           <div
-            className="rounded-xl overflow-hidden grid place-items-center p-6"
+            className="rounded-xl overflow-hidden grid place-items-center p-6 transition-all"
             style={{
               backgroundImage: bgTransparent
                 ? "repeating-conic-gradient(#e5e5e5 0% 25%, transparent 0% 50%)"
                 : undefined,
-              backgroundSize: bgTransparent ? "16px 16px" : undefined,
-              backgroundColor: bgTransparent ? "#fafafa" : "transparent",
+              backgroundSize: bgTransparent ? "14px 14px" : undefined,
+              backgroundColor: bgTransparent ? "#fafafa" : "#fafafa",
             }}
           >
-            <div ref={qrRef} className="size-[360px]" />
+            <div
+              ref={qrRef}
+              className={`size-[360px] transition-opacity duration-200 ${
+                urlIsValid ? "opacity-100" : "opacity-30"
+              }`}
+            />
           </div>
-          <div className="mt-3 text-xs text-neutral-500 text-center break-all">
-            {hasUrl ? url : "Enter a URL above to preview"}
+          <div className="mt-3 text-xs text-neutral-500 text-center break-all px-2">
+            {urlIsValid
+              ? normalizedUrl
+              : "Scan preview will appear once URL is valid"}
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-neutral-200 p-5 space-y-3">
-          <div className="text-sm font-medium text-neutral-700 flex items-center gap-2">
-            <Download className="size-4" />
-            Download
+        <div className="bg-white rounded-2xl border border-neutral-200 p-5 shadow-sm space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="text-sm font-medium text-neutral-700 flex items-center gap-2">
+              <Download className="size-4" />
+              Download
+            </div>
+            <div className="text-[10px] text-neutral-400 font-mono hidden md:block">
+              ⌘↵ = PNG 1024
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-2">
             <DownloadBtn
               label="PNG · 1024"
+              sub="Web / email"
               onClick={() => handleHighResPng("hi", 1024)}
-              disabled={!ready || !hasUrl}
+              disabled={!ready || !urlIsValid}
               primary
             />
             <DownloadBtn
               label="PNG · 2048"
+              sub="Print / signage"
               onClick={() => handleHighResPng("print", 2048)}
-              disabled={!ready || !hasUrl}
+              disabled={!ready || !urlIsValid}
               primary
             />
             <DownloadBtn
-              label="SVG (vector)"
-              onClick={() => handleDownload("svg", "vector")}
-              disabled={!ready || !hasUrl}
+              label="SVG"
+              sub="Infinite scale"
+              onClick={() =>
+                handleDownload("svg", "vector", undefined, "SVG vector")
+              }
+              disabled={!ready || !urlIsValid}
             />
             <DownloadBtn
               label="PNG · 360"
-              onClick={() => handleDownload("png", "web")}
-              disabled={!ready || !hasUrl}
+              sub="As previewed"
+              onClick={() =>
+                handleDownload("png", "web", undefined, "360px PNG")
+              }
+              disabled={!ready || !urlIsValid}
             />
           </div>
           <div className="pt-3 border-t border-neutral-100">
             <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-2">
-              Quick variants
+              Transparent variants
             </div>
             <div className="grid grid-cols-1 gap-2">
               <DownloadBtn
                 label="Transparent · black dots"
+                sub="For light backgrounds"
                 onClick={() =>
-                  handleDownload("png", "transparent-black", {
-                    backgroundOptions: { color: "transparent" },
-                    dotsOptions: { color: "#000000", type: dotType },
-                    cornersSquareOptions: {
-                      color: "#000000",
-                      type: cornerSquareType,
+                  handleDownload(
+                    "png",
+                    "transparent-black",
+                    {
+                      backgroundOptions: { color: "transparent" },
+                      dotsOptions: { color: "#000000", type: dotType },
+                      cornersSquareOptions: {
+                        color: "#000000",
+                        type: cornerSquareType,
+                      },
+                      cornersDotOptions: {
+                        color: "#000000",
+                        type: cornerDotType,
+                      },
                     },
-                    cornersDotOptions: {
-                      color: "#000000",
-                      type: cornerDotType,
-                    },
-                  })
+                    "Transparent black PNG"
+                  )
                 }
-                disabled={!ready || !hasUrl}
+                disabled={!ready || !urlIsValid}
               />
               <DownloadBtn
                 label="Transparent · white dots"
+                sub="For dark backgrounds"
                 onClick={() =>
-                  handleDownload("png", "transparent-white", {
-                    backgroundOptions: { color: "transparent" },
-                    dotsOptions: { color: "#FFFFFF", type: dotType },
-                    cornersSquareOptions: {
-                      color: "#FFFFFF",
-                      type: cornerSquareType,
+                  handleDownload(
+                    "png",
+                    "transparent-white",
+                    {
+                      backgroundOptions: { color: "transparent" },
+                      dotsOptions: { color: "#FFFFFF", type: dotType },
+                      cornersSquareOptions: {
+                        color: "#FFFFFF",
+                        type: cornerSquareType,
+                      },
+                      cornersDotOptions: {
+                        color: "#FFFFFF",
+                        type: cornerDotType,
+                      },
                     },
-                    cornersDotOptions: {
-                      color: "#FFFFFF",
-                      type: cornerDotType,
-                    },
-                  })
+                    "Transparent white PNG"
+                  )
                 }
-                disabled={!ready || !hasUrl}
+                disabled={!ready || !urlIsValid}
               />
             </div>
           </div>
-          <p className="text-xs text-neutral-500 pt-2">
-            For print, SVG scales infinitely without blurring. PNG 2048 is safe
-            for large signage.
-          </p>
         </div>
 
-        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-sm text-amber-900">
-          <div className="font-medium mb-1">Before you print</div>
-          <ol className="list-decimal list-inside space-y-1 text-amber-800">
-            <li>Test-scan with at least 2 phones (iOS + Android).</li>
-            <li>Keep at least a 4mm quiet zone (white margin) around the QR.</li>
-            <li>Don&apos;t resize below 2cm × 2cm on physical prints.</li>
+        <div className="bg-amber-50/80 border border-amber-200 rounded-2xl p-4 text-sm text-amber-900">
+          <div className="font-medium mb-1.5">Before you print</div>
+          <ol className="list-decimal list-inside space-y-1 text-amber-800/90 text-[13px] leading-relaxed">
+            <li>Test-scan with 2+ phones (iOS + Android).</li>
+            <li>Keep at least a 4mm white quiet zone around the QR.</li>
+            <li>
+              Don&apos;t print smaller than 2cm × 2cm. Bigger is always safer.
+            </li>
           </ol>
         </div>
       </aside>
+
+      {/* Toast */}
+      <div
+        aria-live="polite"
+        className={`fixed bottom-6 left-1/2 -translate-x-1/2 transition-all duration-300 pointer-events-none ${
+          toast
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 translate-y-3 pointer-events-none"
+        }`}
+      >
+        <div className="bg-neutral-900 text-white text-sm px-4 py-2.5 rounded-full shadow-lg flex items-center gap-2">
+          <Check className="size-4 text-emerald-400" />
+          {toast}
+        </div>
+      </div>
     </div>
+  );
+}
+
+function PresetButton({
+  preset,
+  active,
+  onClick,
+}: {
+  preset: Preset;
+  active: boolean;
+  onClick: () => void;
+}) {
+  const isTransparent = preset.bgColor === "transparent";
+  return (
+    <button
+      onClick={onClick}
+      className={`group text-left p-3 rounded-xl border transition-all ${
+        active
+          ? "border-neutral-900 bg-neutral-900 text-white shadow-sm"
+          : "border-neutral-200 hover:border-neutral-400 bg-white"
+      }`}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-medium truncate">{preset.label}</div>
+          <div
+            className={`text-[11px] mt-0.5 leading-snug line-clamp-2 ${
+              active ? "text-neutral-300" : "text-neutral-500"
+            }`}
+          >
+            {preset.description}
+          </div>
+        </div>
+        <div
+          className="size-6 rounded border shrink-0 mt-0.5"
+          style={{
+            background: isTransparent
+              ? "repeating-conic-gradient(#d4d4d4 0% 25%, #fff 0% 50%) 0 0 / 6px 6px"
+              : preset.bgColor,
+            borderColor: active ? "#525252" : "#e5e5e5",
+          }}
+        >
+          <div
+            className="size-full rounded flex items-center justify-center"
+            style={{ backgroundColor: "transparent" }}
+          >
+            <div
+              className="size-2 rounded-full"
+              style={{ backgroundColor: preset.dotColor }}
+            />
+          </div>
+        </div>
+      </div>
+    </button>
   );
 }
 
@@ -655,25 +834,93 @@ function Field({
   );
 }
 
+function ColorPair({
+  value,
+  onChange,
+  disabled,
+  displayValue,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  disabled?: boolean;
+  displayValue?: string;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <input
+        type="color"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        disabled={disabled}
+        className="size-9 rounded border border-neutral-300 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed bg-transparent"
+      />
+      <input
+        type="text"
+        value={displayValue ?? value}
+        onChange={(e) => onChange(e.target.value)}
+        disabled={disabled}
+        className="flex-1 min-w-0 px-2 py-1.5 text-sm rounded border border-neutral-300 font-mono disabled:bg-neutral-100 disabled:text-neutral-400"
+      />
+    </div>
+  );
+}
+
+function Select<T extends string>({
+  value,
+  onChange,
+  options,
+  labels,
+}: {
+  value: T;
+  onChange: (v: T) => void;
+  options: readonly T[];
+  labels?: Partial<Record<T, string>>;
+}) {
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value as T)}
+      className="w-full px-2 py-2 text-sm rounded border border-neutral-300 bg-white cursor-pointer"
+    >
+      {options.map((t) => (
+        <option key={t} value={t}>
+          {labels?.[t] ?? t}
+        </option>
+      ))}
+    </select>
+  );
+}
+
 function DownloadBtn({
   label,
+  sub,
   onClick,
   disabled,
   primary,
 }: {
   label: string;
+  sub?: string;
   onClick: () => void;
   disabled?: boolean;
   primary?: boolean;
 }) {
   const base =
-    "px-3 py-2 text-sm rounded-lg border transition-colors disabled:opacity-40 disabled:cursor-not-allowed";
+    "px-3 py-2.5 text-sm rounded-lg border transition-all disabled:opacity-40 disabled:cursor-not-allowed text-left active:scale-[0.98]";
   const cls = primary
     ? `${base} bg-neutral-900 text-white border-neutral-900 hover:bg-neutral-800`
-    : `${base} bg-white text-neutral-800 border-neutral-300 hover:border-neutral-500`;
+    : `${base} bg-white text-neutral-800 border-neutral-300 hover:border-neutral-500 hover:bg-neutral-50`;
   return (
     <button onClick={onClick} disabled={disabled} className={cls}>
-      {label}
+      <div className="font-medium leading-tight">{label}</div>
+      {sub && (
+        <div
+          className={`text-[11px] mt-0.5 leading-tight ${
+            primary ? "text-neutral-300" : "text-neutral-500"
+          }`}
+        >
+          {sub}
+        </div>
+      )}
     </button>
   );
 }
