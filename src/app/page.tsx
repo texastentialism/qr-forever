@@ -1,4 +1,6 @@
 import Generator from "@/components/Generator";
+import Faq from "@/components/Faq";
+import { Logo } from "@/components/Logo";
 
 export default function Home() {
   return (
@@ -6,9 +8,7 @@ export default function Home() {
       <div className="mx-auto max-w-6xl px-6 py-10 md:py-16">
         <header className="mb-10 md:mb-14">
           <div className="flex items-center gap-3 mb-4">
-            <div className="size-10 rounded-xl bg-neutral-900 text-white grid place-items-center font-bold text-lg">
-              Q
-            </div>
+            <Logo size={44} />
             <div>
               <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">
                 QR Forever
@@ -27,12 +27,13 @@ export default function Home() {
           </p>
         </header>
         <Generator />
+        <Faq />
         <footer className="mt-16 pt-8 border-t border-neutral-200 text-sm text-neutral-500 flex flex-col md:flex-row justify-between gap-3">
           <div>
             Built for print. Scan-tested at standard density (error correction
             Q).
           </div>
-          <div>
+          <div className="flex gap-4">
             <a
               href="https://github.com/texastentialism/qr-forever"
               className="hover:text-neutral-900 transition-colors"
