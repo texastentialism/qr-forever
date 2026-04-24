@@ -93,17 +93,19 @@ export default function HistoryPanel({
         </h2>
         <div className="flex items-center gap-1 text-xs">
           <button
+            type="button"
             onClick={handleExport}
             disabled={entries.length === 0}
-            className="inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-neutral-100 text-neutral-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="inline-flex items-center gap-1 px-2.5 py-2 min-h-9 rounded hover:bg-neutral-100 text-neutral-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900"
             title="Download history as JSON"
           >
             <DownloadIcon className="size-3.5" />
             Export
           </button>
           <button
+            type="button"
             onClick={() => importInputRef.current?.click()}
-            className="inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-neutral-100 text-neutral-600 transition-colors"
+            className="inline-flex items-center gap-1 px-2.5 py-2 min-h-9 rounded hover:bg-neutral-100 text-neutral-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900"
             title="Import JSON export"
           >
             <Upload className="size-3.5" />
@@ -111,12 +113,13 @@ export default function HistoryPanel({
           </button>
           {entries.length > 0 && (
             <button
+              type="button"
               onClick={() => {
                 if (confirm("Clear all saved QRs? This can't be undone.")) {
                   onClear();
                 }
               }}
-              className="inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-red-50 text-neutral-500 hover:text-red-600 transition-colors"
+              className="inline-flex items-center gap-1 px-2.5 py-2 min-h-9 rounded hover:bg-red-50 text-neutral-500 hover:text-red-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
               title="Clear history"
             >
               <Trash2 className="size-3.5" />
@@ -129,6 +132,7 @@ export default function HistoryPanel({
             accept="application/json,.json"
             className="hidden"
             onChange={handleImport}
+            aria-label="Import QR history JSON file"
           />
         </div>
       </div>
@@ -166,8 +170,9 @@ export default function HistoryPanel({
                 </div>
               </button>
               <button
+                type="button"
                 onClick={() => onRemove(entry.id)}
-                className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-50 text-neutral-400 hover:text-red-500 transition-all"
+                className="opacity-60 sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100 p-2.5 min-h-11 min-w-11 rounded hover:bg-red-50 text-neutral-400 hover:text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 transition-all grid place-items-center"
                 title="Remove from history"
                 aria-label="Remove"
               >
