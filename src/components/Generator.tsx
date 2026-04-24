@@ -865,7 +865,28 @@ export default function Generator() {
           onLoad={handleLoadEntry}
           onRemove={(id) => setHistory((h) => removeHistory(h, id))}
           onClear={() => setHistory(clearHistory())}
-          onImport={(entries) => setHistory(entries)}
+          onImport={(entries) => {
+            setHistory(entries);
+            // If signed in to family sync, backfill imported entries to cloud.
+            // POST is idempotent (deduped by id server-side), so re-imports
+            // won't create duplicates in the shared gist.
+            if (getSyncToken() && entries.length > 0) {
+              (async () => {
+                let ok = 0;
+                let fail = 0;
+                for (const e of entries) {
+                  const r = await syncEntry(e);
+                  if (r.ok) ok++;
+                  else fail++;
+                }
+                showToast(
+                  fail === 0
+                    ? `Synced ${ok} entries to family space`
+                    : `Synced ${ok}, ${fail} failed`
+                );
+              })();
+            }
+          }}
         />
       </div>
 
