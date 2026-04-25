@@ -39,8 +39,12 @@ type Preset = {
   dotType: DotType;
   cornerSquareType: CornerSquareType;
   cornerDotType: CornerDotType;
+  starter?: boolean;
 };
 
+// `starter: true` presets are shown in the always-visible row of 4.
+// Others sit behind the "More styles" toggle. Order within each group is
+// preserved (starters first, then the rest).
 const PRESETS: Preset[] = [
   {
     id: "print-classic",
@@ -51,6 +55,7 @@ const PRESETS: Preset[] = [
     dotType: "square",
     cornerSquareType: "square",
     cornerDotType: "square",
+    starter: true,
   },
   {
     id: "transparent-black",
@@ -61,6 +66,7 @@ const PRESETS: Preset[] = [
     dotType: "rounded",
     cornerSquareType: "extra-rounded",
     cornerDotType: "dot",
+    starter: true,
   },
   {
     id: "transparent-white",
@@ -81,6 +87,7 @@ const PRESETS: Preset[] = [
     dotType: "rounded",
     cornerSquareType: "extra-rounded",
     cornerDotType: "dot",
+    starter: true,
   },
   {
     id: "dots-black",
@@ -101,6 +108,7 @@ const PRESETS: Preset[] = [
     dotType: "rounded",
     cornerSquareType: "extra-rounded",
     cornerDotType: "dot",
+    starter: true,
   },
   {
     id: "sage",
@@ -218,6 +226,17 @@ export default function Generator() {
   const [logoDataUrl, setLogoDataUrl] = useState<string | null>(null);
   const [logoHideDots, setLogoHideDots] = useState(true);
   const [logoSize, setLogoSize] = useState(0.3);
+
+  // Preset reveal: starter row is always shown; the rest sit behind a toggle
+  const isStarter = (id: string) =>
+    PRESETS.find((p) => p.id === id)?.starter === true;
+  const [showAllPresets, setShowAllPresets] = useState(
+    () => !isStarter(PRESETS[0].id) // safety: open if default isn't a starter
+  );
+  // If a non-starter preset becomes active (e.g. via history reload), expand
+  useEffect(() => {
+    if (!isStarter(presetId)) setShowAllPresets(true);
+  }, [presetId]);
 
   // History
   const [history, setHistory] = useState<HistoryEntry[]>([]);
@@ -563,7 +582,7 @@ export default function Generator() {
               Style
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-              {PRESETS.map((p) => (
+              {PRESETS.filter((p) => p.starter).map((p) => (
                 <PresetButton
                   key={p.id}
                   preset={p}
@@ -572,6 +591,39 @@ export default function Generator() {
                 />
               ))}
             </div>
+            {showAllPresets ? (
+              <>
+                <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-2">
+                  {PRESETS.filter((p) => !p.starter).map((p) => (
+                    <PresetButton
+                      key={p.id}
+                      preset={p}
+                      active={presetId === p.id}
+                      onClick={() => setPresetId(p.id)}
+                    />
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowAllPresets(false)}
+                  className="mt-3 text-xs text-neutral-500 hover:text-neutral-900 transition-colors"
+                >
+                  Show fewer styles
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowAllPresets(true)}
+                className="mt-3 text-xs text-neutral-500 hover:text-neutral-900 inline-flex items-center gap-1 transition-colors"
+              >
+                <ChevronDown className="size-3" />
+                More styles
+                <span className="text-neutral-400">
+                  · {PRESETS.filter((p) => !p.starter).length}
+                </span>
+              </button>
+            )}
           </section>
 
           {/* Advanced controls */}
