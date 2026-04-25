@@ -150,9 +150,38 @@ function isLikelyUrl(v: string) {
   if (!v) return false;
   try {
     const u = new URL(v.startsWith("http") ? v : `https://${v}`);
-    return Boolean(u.hostname && u.hostname.includes("."));
+    if (!u.hostname || !u.hostname.includes(".")) return false;
+    // Require a real TLD: at least 2 letters after the last dot
+    const tld = u.hostname.split(".").pop() ?? "";
+    return /^[a-z]{2,}$/i.test(tld);
   } catch {
     return false;
+  }
+}
+
+/**
+ * When the URL is incomplete, return a short, specific hint about what's
+ * missing. Returns null for empty input or valid URLs.
+ */
+function urlHint(v: string): string | null {
+  const t = v.trim();
+  if (!t) return null;
+  if (/\s/.test(t)) return "Spaces aren't allowed in URLs";
+  // Strip scheme to inspect hostname-ish portion
+  const stripped = t.replace(/^https?:\/\//i, "");
+  if (!stripped) return "Add a domain after https://";
+  // No dot at all → user is partway through typing the domain
+  if (!stripped.includes(".")) return "Add a domain ending (.com, .org, etc.)";
+  // Dot present but parse fails → likely malformed
+  try {
+    const u = new URL(t.startsWith("http") ? t : `https://${t}`);
+    if (!u.hostname.includes(".")) return "Domain looks incomplete";
+    // Trailing dot or empty TLD
+    if (/\.$/.test(u.hostname)) return "Domain looks incomplete";
+    if (/\.[^a-z0-9]/i.test(u.hostname)) return "Looks like a typo";
+    return "Almost there";
+  } catch {
+    return "Looks like a typo";
   }
 }
 
@@ -230,6 +259,7 @@ export default function Generator() {
 
   const effectiveBg = bgTransparent ? "transparent" : bgColor;
   const urlIsValid = isLikelyUrl(url);
+  const urlIssue = urlIsValid ? null : urlHint(url);
   const normalizedUrl = useMemo(() => {
     if (!url) return "";
     if (!/^https?:\/\//i.test(url)) return `https://${url}`;
@@ -488,15 +518,16 @@ export default function Generator() {
                       <Check className="size-3.5" />
                       Valid
                     </div>
-                  ) : (
-                    <span className="text-xs text-amber-600 font-medium bg-amber-50 px-2 py-0.5 rounded-full">
-                      Incomplete
-                    </span>
-                  )}
+                  ) : null}
                 </div>
               )}
             </div>
-            <p className="mt-2 text-xs text-neutral-500">
+            <p
+              className={`mt-2 text-xs ${
+                urlIssue ? "text-amber-700" : "text-neutral-500"
+              }`}
+              aria-live="polite"
+            >
               {urlIsValid ? (
                 <>
                   Will encode:{" "}
@@ -504,6 +535,8 @@ export default function Generator() {
                     {normalizedUrl}
                   </span>
                 </>
+              ) : urlIssue ? (
+                urlIssue
               ) : (
                 "This exact URL is baked into the QR. Keep the URL live — the QR keeps working."
               )}
