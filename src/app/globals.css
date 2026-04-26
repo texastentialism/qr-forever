@@ -21,8 +21,8 @@
 }
 
 @theme inline {
-  --font-sans: var(--font-sans);
-  --font-display: var(--font-display);
+  --font-sans: var(--font-ibm-plex);
+  --font-display: var(--font-fraunces);
   --color-paper: var(--color-paper);
   --color-surface: var(--color-surface);
   --color-surface-soft: var(--color-surface-soft);

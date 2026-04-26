@@ -158,9 +158,17 @@ function isLikelyUrl(v: string) {
   if (!v) return false;
   try {
     const u = new URL(v.startsWith("http") ? v : `https://${v}`);
-    if (!u.hostname || !u.hostname.includes(".")) return false;
-    // Require a real TLD: at least 2 letters after the last dot
-    const tld = u.hostname.split(".").pop() ?? "";
+    const host = u.hostname;
+    if (!host) return false;
+    // IPv6 hostname: URL parser returns it bracket-stripped, e.g. "::1"
+    if (host.includes(":")) return true;
+    // IPv4 dotted quad
+    if (/^\d{1,3}(\.\d{1,3}){3}$/.test(host)) return true;
+    if (!host.includes(".")) return false;
+    // Punycode TLD (xn--…) is valid for IDN domains
+    const tld = host.split(".").pop() ?? "";
+    if (/^xn--[a-z0-9-]{2,}$/i.test(tld)) return true;
+    // Otherwise require an alpha TLD of at least 2 letters
     return /^[a-z]{2,}$/i.test(tld);
   } catch {
     return false;
@@ -177,7 +185,7 @@ function urlHint(v: string): string | null {
   if (/\s/.test(t)) return "Spaces aren't allowed in URLs";
   // Strip scheme to inspect hostname-ish portion
   const stripped = t.replace(/^https?:\/\//i, "");
-  if (!stripped) return "Add a domain after https://";
+  if (!stripped) return "Add a domain";
   // No dot at all → user is partway through typing the domain
   if (!stripped.includes(".")) return "Add a domain ending (.com, .org, etc.)";
   // Dot present but parse fails → likely malformed
@@ -207,6 +215,11 @@ function safeFilename(url: string, variant: string, ext: string) {
   return `${host}-${variant}-${stamp}.${ext}`;
 }
 
+const STARTER_PRESET_IDS = new Set(
+  PRESETS.filter((p) => p.starter).map((p) => p.id)
+);
+const isStarterPreset = (id: string) => STARTER_PRESET_IDS.has(id);
+
 export default function Generator() {
   // Core inputs
   const [url, setUrl] = useState("");
@@ -227,16 +240,16 @@ export default function Generator() {
   const [logoHideDots, setLogoHideDots] = useState(true);
   const [logoSize, setLogoSize] = useState(0.3);
 
-  // Preset reveal: starter row is always shown; the rest sit behind a toggle
-  const isStarter = (id: string) =>
-    PRESETS.find((p) => p.id === id)?.starter === true;
+  // Preset reveal: starter row is always shown; the rest sit behind a toggle.
+  // `isStarterPreset` lives at module scope so it isn't recreated each render.
   const [showAllPresets, setShowAllPresets] = useState(
-    () => !isStarter(PRESETS[0].id) // safety: open if default isn't a starter
+    () => !isStarterPreset(PRESETS[0].id) // safety: open if default isn't a starter
   );
   // If a non-starter preset becomes active (e.g. via history reload), expand
   useEffect(() => {
-    if (!isStarter(presetId)) setShowAllPresets(true);
+    if (!isStarterPreset(presetId)) setShowAllPresets(true);
   }, [presetId]);
+  const activeIsStarter = isStarterPreset(presetId);
 
   // History
   const [history, setHistory] = useState<HistoryEntry[]>([]);
@@ -603,13 +616,15 @@ export default function Generator() {
                     />
                   ))}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setShowAllPresets(false)}
-                  className="mt-3 text-xs text-[var(--color-ink-muted)] hover:text-[var(--color-ink)] transition-colors"
-                >
-                  Show fewer styles
-                </button>
+                {activeIsStarter && (
+                  <button
+                    type="button"
+                    onClick={() => setShowAllPresets(false)}
+                    className="mt-3 text-xs text-[var(--color-ink-muted)] hover:text-[var(--color-ink)] transition-colors"
+                  >
+                    Show fewer styles
+                  </button>
+                )}
               </>
             ) : (
               <button

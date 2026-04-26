@@ -3,20 +3,18 @@ import { Fraunces, IBM_Plex_Sans } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
-// Display serif for the wordmark and section titles. Fraunces has a soft
-// optical-size axis that reads warm at large sizes — fits the
-// "Espresso · cream" editorial direction without leaning twee.
+// Source font variables get unique names so the mapping in @theme inline is
+// explicit (--font-sans → --font-ibm-plex). Avoids a self-referencing
+// passthrough that confuses readers and tools.
 const fraunces = Fraunces({
-  variable: "--font-display",
+  variable: "--font-fraunces",
   subsets: ["latin"],
   axes: ["opsz", "SOFT"],
   display: "swap",
 });
 
-// Body sans. IBM Plex Sans pairs cleanly with Fraunces and avoids the
-// Inter / Geist defaults the critique flagged as generic.
 const plexSans = IBM_Plex_Sans({
-  variable: "--font-sans",
+  variable: "--font-ibm-plex",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   display: "swap",
@@ -73,10 +71,9 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f7f1e3" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
-  ],
+  // Identity is light-only (Espresso · cream). No dark variant ships yet, so a
+  // dark themeColor would frame the cream surface in black on dark-mode mobile.
+  themeColor: "#f7f1e3",
   width: "device-width",
   initialScale: 1,
 };
