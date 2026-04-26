@@ -824,14 +824,23 @@ export default function Generator() {
                 {urlIsValid ? "Ready to download" : "Enter a URL"}
               </div>
             </div>
+            {/*
+              The QR preview holder uses a TRUE NEUTRAL surface (not the warm
+              page palette) so users judge their color/preset choices against
+              an unbiased background — same reason design tools like Figma
+              use a neutral gray canvas regardless of brand palette. The QR's
+              own background still ships baked into the artifact, so what the
+              user downloads is unaffected; this only frames the on-screen
+              preview.
+            */}
             <div
               className="rounded-xl overflow-hidden grid place-items-center p-6 transition-all"
               style={{
                 backgroundImage: bgTransparent
-                  ? "repeating-conic-gradient(var(--color-line) 0% 25%, transparent 0% 50%)"
+                  ? "repeating-conic-gradient(#e5e5e5 0% 25%, transparent 0% 50%)"
                   : undefined,
                 backgroundSize: bgTransparent ? "14px 14px" : undefined,
-                backgroundColor: "var(--color-surface-soft)",
+                backgroundColor: "#fafafa",
               }}
             >
               <div
