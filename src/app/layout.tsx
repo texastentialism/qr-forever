@@ -1,11 +1,25 @@
 import type { Metadata, Viewport } from "next";
-import { Geist } from "next/font/google";
+import { Fraunces, IBM_Plex_Sans } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Display serif for the wordmark and section titles. Fraunces has a soft
+// optical-size axis that reads warm at large sizes — fits the
+// "Espresso · cream" editorial direction without leaning twee.
+const fraunces = Fraunces({
+  variable: "--font-display",
   subsets: ["latin"],
+  axes: ["opsz", "SOFT"],
+  display: "swap",
+});
+
+// Body sans. IBM Plex Sans pairs cleanly with Fraunces and avoids the
+// Inter / Geist defaults the critique flagged as generic.
+const plexSans = IBM_Plex_Sans({
+  variable: "--font-sans",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 const SITE_URL =
@@ -60,7 +74,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#fafaf7" },
+    { media: "(prefers-color-scheme: light)", color: "#f7f1e3" },
     { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
   ],
   width: "device-width",
@@ -73,11 +87,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} h-full antialiased`}>
-      <body
-        className="min-h-full text-neutral-900 flex flex-col"
-        style={{ backgroundColor: "#fafaf7" }}
-      >
+    <html
+      lang="en"
+      className={`${fraunces.variable} ${plexSans.variable} h-full antialiased`}
+    >
+      <body className="min-h-full flex flex-col">
         {children}
         <Analytics />
       </body>

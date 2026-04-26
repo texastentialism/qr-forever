@@ -493,18 +493,18 @@ export default function Generator() {
         {/* LEFT: controls (renders SECOND on mobile so downloads stay above the fold) */}
         <div className="space-y-6 order-2 lg:order-1">
           {/* URL input */}
-          <section className="bg-white rounded-2xl border border-neutral-200 p-5 shadow-sm">
+          <section className="bg-[var(--color-surface)] rounded-2xl border border-[var(--color-line)] p-5 shadow-sm">
             <div className="flex items-center justify-between mb-2">
               <label
                 htmlFor="url"
-                className="block text-sm font-medium text-neutral-700"
+                className="block text-sm font-medium text-[var(--color-ink-soft)]"
               >
                 Destination URL
               </label>
               <button
                 type="button"
                 onClick={handleExample}
-                className="text-xs text-neutral-500 hover:text-neutral-900 inline-flex items-center gap-1 transition-colors"
+                className="text-xs text-[var(--color-ink-muted)] hover:text-[var(--color-ink)] inline-flex items-center gap-1 transition-colors"
               >
                 <Sparkles className="size-3" />
                 Try an example
@@ -524,7 +524,7 @@ export default function Generator() {
                 spellCheck={false}
                 className={`w-full px-4 py-3 pr-28 rounded-xl border text-base transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 ${
                   url === ""
-                    ? "border-neutral-300 focus:border-neutral-900 focus:ring-neutral-900"
+                    ? "border-[var(--color-line-strong)] focus:border-[var(--color-espresso)] focus:ring-[var(--color-espresso)]"
                     : urlIsValid
                     ? "border-emerald-400 focus:border-emerald-500 focus:ring-emerald-500"
                     : "border-amber-300 focus:border-amber-400 focus:ring-amber-400"
@@ -543,14 +543,14 @@ export default function Generator() {
             </div>
             <p
               className={`mt-2 text-xs ${
-                urlIssue ? "text-amber-700" : "text-neutral-500"
+                urlIssue ? "text-amber-700" : "text-[var(--color-ink-muted)]"
               }`}
               aria-live="polite"
             >
               {urlIsValid ? (
                 <>
                   Will encode:{" "}
-                  <span className="font-mono text-neutral-700">
+                  <span className="font-mono text-[var(--color-ink-soft)]">
                     {normalizedUrl}
                   </span>
                 </>
@@ -560,14 +560,14 @@ export default function Generator() {
                 "This exact URL is baked into the QR. Keep the URL live — the QR keeps working."
               )}
             </p>
-            <div className="mt-3 flex items-start gap-2 bg-neutral-50 border border-neutral-200 rounded-lg px-3 py-2.5 text-xs text-neutral-600">
+            <div className="mt-3 flex items-start gap-2 bg-[var(--color-surface-soft)] border border-[var(--color-line)] rounded-lg px-3 py-2.5 text-xs text-[var(--color-ink-soft)]">
               <Lightbulb className="size-4 text-amber-500 shrink-0 mt-0.5" />
               <div>
-                <span className="font-medium text-neutral-800">
+                <span className="font-medium text-[var(--color-ink)]">
                   Want to track scans?
                 </span>{" "}
                 Add UTM parameters:{" "}
-                <code className="font-mono text-[11px] bg-white border border-neutral-200 px-1 py-0.5 rounded">
+                <code className="font-mono text-[11px] bg-[var(--color-surface)] border border-[var(--color-line)] px-1 py-0.5 rounded">
                   ?utm_source=qr&amp;utm_campaign=flyer
                 </code>
                 . They show up in Google Analytics, Plausible, etc.
@@ -576,8 +576,8 @@ export default function Generator() {
           </section>
 
           {/* Presets */}
-          <section className="bg-white rounded-2xl border border-neutral-200 p-5 shadow-sm">
-            <h2 className="text-sm font-medium text-neutral-700 mb-3 flex items-center gap-2">
+          <section className="bg-[var(--color-surface)] rounded-2xl border border-[var(--color-line)] p-5 shadow-sm">
+            <h2 className="text-sm font-medium text-[var(--color-ink-soft)] mb-3 flex items-center gap-2">
               <Palette className="size-4" />
               Style
             </h2>
@@ -606,7 +606,7 @@ export default function Generator() {
                 <button
                   type="button"
                   onClick={() => setShowAllPresets(false)}
-                  className="mt-3 text-xs text-neutral-500 hover:text-neutral-900 transition-colors"
+                  className="mt-3 text-xs text-[var(--color-ink-muted)] hover:text-[var(--color-ink)] transition-colors"
                 >
                   Show fewer styles
                 </button>
@@ -615,11 +615,11 @@ export default function Generator() {
               <button
                 type="button"
                 onClick={() => setShowAllPresets(true)}
-                className="mt-3 text-xs text-neutral-500 hover:text-neutral-900 inline-flex items-center gap-1 transition-colors"
+                className="mt-3 text-xs text-[var(--color-ink-muted)] hover:text-[var(--color-ink)] inline-flex items-center gap-1 transition-colors"
               >
                 <ChevronDown className="size-3" />
                 More styles
-                <span className="text-neutral-400">
+                <span className="text-[var(--color-ink-faint)]">
                   · {PRESETS.filter((p) => !p.starter).length}
                 </span>
               </button>
@@ -627,12 +627,12 @@ export default function Generator() {
           </section>
 
           {/* Advanced controls */}
-          <details className="bg-white rounded-2xl border border-neutral-200 shadow-sm group">
+          <details className="bg-[var(--color-surface)] rounded-2xl border border-[var(--color-line)] shadow-sm group">
             <summary className="cursor-pointer select-none list-none p-5 flex items-center justify-between">
-              <span className="text-sm font-medium text-neutral-700">
+              <span className="text-sm font-medium text-[var(--color-ink-soft)]">
                 Fine-tune
               </span>
-              <div className="flex items-center gap-2 text-xs text-neutral-400">
+              <div className="flex items-center gap-2 text-xs text-[var(--color-ink-faint)]">
                 <span className="group-open:hidden">
                   Colors, shapes, error correction
                 </span>
@@ -651,7 +651,7 @@ export default function Generator() {
                     disabled={bgTransparent}
                     displayValue={bgTransparent ? "transparent" : undefined}
                   />
-                  <label className="flex items-center gap-2 mt-2 text-xs text-neutral-600 cursor-pointer">
+                  <label className="flex items-center gap-2 mt-2 text-xs text-[var(--color-ink-soft)] cursor-pointer">
                     <input
                       type="checkbox"
                       checked={bgTransparent}
@@ -707,7 +707,7 @@ export default function Generator() {
                     max={40}
                     value={margin}
                     onChange={(e) => setMargin(Number(e.target.value))}
-                    className="w-full accent-neutral-900"
+                    className="w-full accent-[var(--color-espresso)]"
                   />
                 </Field>
               </div>
@@ -715,9 +715,9 @@ export default function Generator() {
           </details>
 
           {/* Logo */}
-          <details className="bg-white rounded-2xl border border-neutral-200 shadow-sm group">
+          <details className="bg-[var(--color-surface)] rounded-2xl border border-[var(--color-line)] shadow-sm group">
             <summary className="cursor-pointer select-none list-none p-5 flex items-center justify-between">
-              <span className="text-sm font-medium text-neutral-700 inline-flex items-center gap-2">
+              <span className="text-sm font-medium text-[var(--color-ink-soft)] inline-flex items-center gap-2">
                 <ImageIcon className="size-4" />
                 Center logo
                 {logoDataUrl && (
@@ -726,14 +726,14 @@ export default function Generator() {
                   </span>
                 )}
               </span>
-              <div className="flex items-center gap-2 text-xs text-neutral-400">
+              <div className="flex items-center gap-2 text-xs text-[var(--color-ink-faint)]">
                 <span className="group-open:hidden">Optional</span>
                 <ChevronDown className="size-4 transition-transform group-open:rotate-180" />
               </div>
             </summary>
             <div className="px-5 pb-5">
               <div className="flex items-start gap-4 flex-wrap">
-                <label className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-300 hover:bg-neutral-50 cursor-pointer text-sm transition-colors">
+                <label className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-[var(--color-line-strong)] hover:bg-[var(--color-surface-soft)] cursor-pointer text-sm transition-colors">
                   <Upload className="size-4" />
                   {logoDataUrl ? "Replace logo" : "Upload image"}
                   <input
@@ -747,7 +747,7 @@ export default function Generator() {
                   <>
                     <button
                       onClick={() => setLogoDataUrl(null)}
-                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-neutral-300 hover:bg-neutral-50 text-sm text-neutral-700 transition-colors"
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[var(--color-line-strong)] hover:bg-[var(--color-surface-soft)] text-sm text-[var(--color-ink-soft)] transition-colors"
                     >
                       <X className="size-4" /> Remove
                     </button>
@@ -762,10 +762,10 @@ export default function Generator() {
                           onChange={(e) =>
                             setLogoSize(Number(e.target.value))
                           }
-                          className="w-full accent-neutral-900"
+                          className="w-full accent-[var(--color-espresso)]"
                         />
                       </Field>
-                      <label className="flex items-center gap-2 text-xs text-neutral-600 cursor-pointer">
+                      <label className="flex items-center gap-2 text-xs text-[var(--color-ink-soft)] cursor-pointer">
                         <input
                           type="checkbox"
                           checked={logoHideDots}
@@ -796,14 +796,14 @@ export default function Generator() {
 
         {/* RIGHT: preview + downloads (renders FIRST on mobile so the primary action is reachable without scrolling) */}
         <aside className="lg:sticky lg:top-6 lg:self-start space-y-4 order-1 lg:order-2">
-          <div className="bg-white rounded-2xl border border-neutral-200 p-5 shadow-sm">
+          <div className="bg-[var(--color-surface)] rounded-2xl border border-[var(--color-line)] p-5 shadow-sm">
             <div className="flex items-center justify-between mb-3">
-              <div className="text-sm font-medium text-neutral-700">
+              <div className="text-sm font-medium text-[var(--color-ink-soft)]">
                 Live preview
               </div>
               <div
                 className={`text-xs transition-opacity ${
-                  urlIsValid ? "text-emerald-600" : "text-neutral-400"
+                  urlIsValid ? "text-emerald-600" : "text-[var(--color-ink-faint)]"
                 }`}
               >
                 {urlIsValid ? "Ready to download" : "Enter a URL"}
@@ -826,15 +826,15 @@ export default function Generator() {
                 }`}
               />
             </div>
-            <div className="mt-3 text-xs text-neutral-500 text-center break-all px-2">
+            <div className="mt-3 text-xs text-[var(--color-ink-muted)] text-center break-all px-2">
               {urlIsValid
                 ? normalizedUrl
                 : "Preview unlocks once the URL is valid"}
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-neutral-200 p-5 shadow-sm space-y-3">
-            <div className="text-sm font-medium text-neutral-700 flex items-center gap-2">
+          <div className="bg-[var(--color-surface)] rounded-2xl border border-[var(--color-line)] p-5 shadow-sm space-y-3">
+            <div className="text-sm font-medium text-[var(--color-ink-soft)] flex items-center gap-2">
               <Download className="size-4" />
               Download
             </div>
@@ -870,11 +870,11 @@ export default function Generator() {
                 disabled={!ready || !urlIsValid}
               />
             </div>
-            <div className="pt-3 border-t border-neutral-100">
-              <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1">
+            <div className="pt-3 border-t border-[var(--color-line)]">
+              <div className="text-xs font-medium text-[var(--color-ink-muted)] uppercase tracking-wide mb-1">
                 For layering onto backgrounds
               </div>
-              <div className="text-[11px] text-neutral-400 mb-2">
+              <div className="text-[11px] text-[var(--color-ink-faint)] mb-2">
                 Transparent so you can place them over your own design
               </div>
               <div className="grid grid-cols-1 gap-2">
@@ -984,7 +984,7 @@ export default function Generator() {
             : "opacity-0 translate-y-3"
         }`}
       >
-        <div className="bg-neutral-900 text-white text-sm px-4 py-2.5 rounded-full shadow-lg flex items-center gap-2 max-w-[90vw]">
+        <div className="bg-[var(--color-espresso)] text-[var(--color-paper)] text-sm px-4 py-2.5 rounded-full shadow-lg flex items-center gap-2 max-w-[90vw]">
           <Check className="size-4 text-emerald-400 shrink-0" />
           <span className="truncate">{toast}</span>
         </div>
@@ -1008,8 +1008,8 @@ function PresetButton({
       onClick={onClick}
       className={`group text-left p-3 rounded-xl border transition-all ${
         active
-          ? "border-neutral-900 bg-neutral-900 text-white shadow-sm"
-          : "border-neutral-200 hover:border-neutral-400 bg-white"
+          ? "border-[var(--color-espresso)] bg-[var(--color-espresso)] text-[var(--color-paper)] shadow-sm"
+          : "border-[var(--color-line)] hover:border-[var(--color-line-strong)] bg-[var(--color-surface)]"
       }`}
     >
       <div className="flex items-start justify-between gap-2">
@@ -1017,7 +1017,7 @@ function PresetButton({
           <div className="text-sm font-medium truncate">{preset.label}</div>
           <div
             className={`text-xs mt-0.5 leading-snug line-clamp-2 ${
-              active ? "text-neutral-300" : "text-neutral-500"
+              active ? "text-[var(--color-ink-faint)]" : "text-[var(--color-ink-muted)]"
             }`}
           >
             {preset.description}
@@ -1029,7 +1029,7 @@ function PresetButton({
           style={{
             width: "30px",
             height: "20px",
-            borderColor: active ? "#525252" : "#e5e5e5",
+            borderColor: active ? "var(--color-espresso-hover)" : "var(--color-line)",
           }}
         >
           <div
@@ -1059,11 +1059,11 @@ function Field({
   // Native <label> nesting associates to the first form control inside
   return (
     <label className="block">
-      <span className="text-xs font-medium text-neutral-600 mb-1.5 block">
+      <span className="text-xs font-medium text-[var(--color-ink-soft)] mb-1.5 block">
         {label}
       </span>
       {children}
-      {hint && <div className="text-xs text-neutral-400 mt-1">{hint}</div>}
+      {hint && <div className="text-xs text-[var(--color-ink-faint)] mt-1">{hint}</div>}
     </label>
   );
 }
@@ -1089,7 +1089,7 @@ function ColorPair({
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
         aria-label={ariaLabel ? `${ariaLabel} — color picker` : "Color picker"}
-        className="h-11 w-11 rounded border border-neutral-300 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed bg-transparent focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:ring-offset-1"
+        className="h-11 w-11 rounded border border-[var(--color-line-strong)] cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed bg-transparent focus:outline-none focus:ring-2 focus:ring-[var(--color-espresso)] focus:ring-offset-1"
       />
       <input
         type="text"
@@ -1097,7 +1097,7 @@ function ColorPair({
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
         aria-label={ariaLabel ? `${ariaLabel} — hex value` : "Color hex value"}
-        className="flex-1 min-w-0 px-2 py-1.5 text-sm rounded border border-neutral-300 font-mono disabled:bg-neutral-100 disabled:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:ring-offset-1"
+        className="flex-1 min-w-0 px-2 py-1.5 text-sm rounded border border-[var(--color-line-strong)] font-mono disabled:bg-[var(--color-surface-soft)] disabled:text-[var(--color-ink-faint)] focus:outline-none focus:ring-2 focus:ring-[var(--color-espresso)] focus:ring-offset-1"
       />
     </div>
   );
@@ -1118,7 +1118,7 @@ function Select<T extends string>({
     <select
       value={value}
       onChange={(e) => onChange(e.target.value as T)}
-      className="w-full px-2 py-2 text-sm rounded border border-neutral-300 bg-white cursor-pointer"
+      className="w-full px-2 py-2 text-sm rounded border border-[var(--color-line-strong)] bg-[var(--color-surface)] cursor-pointer"
     >
       {options.map((t) => (
         <option key={t} value={t}>
@@ -1145,15 +1145,15 @@ function DownloadBtn({
   const base =
     "px-3 py-2.5 text-sm rounded-xl border transition-all disabled:opacity-40 disabled:cursor-not-allowed text-left active:scale-[0.98]";
   const cls = primary
-    ? `${base} bg-neutral-900 text-white border-neutral-900 hover:bg-neutral-800`
-    : `${base} bg-white text-neutral-800 border-neutral-300 hover:border-neutral-500 hover:bg-neutral-50`;
+    ? `${base} bg-[var(--color-espresso)] text-[var(--color-paper)] border-[var(--color-espresso)] hover:bg-[var(--color-espresso-hover)]`
+    : `${base} bg-[var(--color-surface)] text-[var(--color-ink)] border-[var(--color-line-strong)] hover:border-[var(--color-ink-muted)] hover:bg-[var(--color-surface-soft)]`;
   return (
     <button onClick={onClick} disabled={disabled} className={cls}>
       <div className="font-medium leading-tight">{label}</div>
       {sub && (
         <div
           className={`text-[11px] mt-0.5 leading-tight ${
-            primary ? "text-neutral-300" : "text-neutral-500"
+            primary ? "text-[var(--color-ink-faint)]" : "text-[var(--color-ink-muted)]"
           }`}
         >
           {sub}

@@ -1,11 +1,50 @@
 @import "tailwindcss";
 
+/*
+ * Espresso · cream identity tokens.
+ * Warm-tinted neutrals (chroma ~0.005–0.012) so the page reads as paper,
+ * not as cool-gray SaaS chrome. Brand accent is the espresso dot color
+ * from the Warm preset, which doubles as a wink at the tool's purpose.
+ */
+:root {
+  --color-paper: #f7f1e3;          /* page background */
+  --color-surface: #fdfaf2;        /* cards, inputs */
+  --color-surface-soft: #f3ecdb;   /* subtle insets */
+  --color-border: #e7dcc1;         /* warm beige border */
+  --color-border-strong: #c9b994;  /* hover/active borders */
+  --color-ink: #1f1812;            /* near-black, warm tinted */
+  --color-ink-soft: #4a3d30;       /* secondary text */
+  --color-ink-muted: #7a6a55;      /* muted text */
+  --color-ink-faint: #a99a82;      /* faint text */
+  --color-espresso: #3b2a1a;       /* brand accent */
+  --color-espresso-hover: #5a4128;
+}
+
 @theme inline {
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
+  --color-paper: var(--color-paper);
+  --color-surface: var(--color-surface);
+  --color-surface-soft: var(--color-surface-soft);
+  --color-line: var(--color-border);
+  --color-line-strong: var(--color-border-strong);
+  --color-ink: var(--color-ink);
+  --color-ink-soft: var(--color-ink-soft);
+  --color-ink-muted: var(--color-ink-muted);
+  --color-ink-faint: var(--color-ink-faint);
+  --color-espresso: var(--color-espresso);
+  --color-espresso-hover: var(--color-espresso-hover);
 }
 
 body {
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+}
+
+.font-display {
+  font-family: var(--font-display), ui-serif, Georgia, serif;
+  font-feature-settings: "ss01", "ss02";
 }
 
 /* Respect user motion preferences */
