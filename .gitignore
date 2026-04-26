@@ -44,3 +44,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .env*.local
+
+# Playwright MCP scratch dir + ad-hoc screenshots
+.playwright-mcp/
+qr-forever-*.png
