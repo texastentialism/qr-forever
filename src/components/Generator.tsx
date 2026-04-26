@@ -813,16 +813,18 @@ export default function Generator() {
               className="rounded-xl overflow-hidden grid place-items-center p-6 transition-all"
               style={{
                 backgroundImage: bgTransparent
-                  ? "repeating-conic-gradient(#e5e5e5 0% 25%, transparent 0% 50%)"
+                  ? "repeating-conic-gradient(var(--color-line) 0% 25%, transparent 0% 50%)"
                   : undefined,
                 backgroundSize: bgTransparent ? "14px 14px" : undefined,
-                backgroundColor: "#fafafa",
+                backgroundColor: "var(--color-surface-soft)",
               }}
             >
               <div
                 ref={qrRef}
-                className={`size-[360px] transition-opacity duration-200 ${
-                  urlIsValid ? "opacity-100" : "opacity-30"
+                className={`size-[360px] transition-[opacity,scale] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                  ready && urlIsValid
+                    ? "opacity-100 scale-100"
+                    : "opacity-30 scale-[0.96]"
                 }`}
               />
             </div>
