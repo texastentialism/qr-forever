@@ -19,7 +19,7 @@ const ITEMS: { q: string; a: React.ReactNode }[] = [
       <>
         Add UTM parameters to your URL before generating the QR. For a flyer,
         encode something like{" "}
-        <code className="text-xs bg-neutral-100 px-1.5 py-0.5 rounded">
+        <code className="text-xs bg-[var(--color-surface-soft)] px-1.5 py-0.5 rounded">
           porchlightstudios.com/book?utm_source=qr&amp;utm_campaign=flyer-spring
         </code>
         . Your site analytics (Google Analytics via Wix, Plausible, Fathom, etc.)
@@ -42,11 +42,11 @@ const ITEMS: { q: string; a: React.ReactNode }[] = [
         <br />
         <br />
         <strong>The pro move:</strong> instead of encoding{" "}
-        <code className="text-xs bg-neutral-100 px-1.5 py-0.5 rounded">
+        <code className="text-xs bg-[var(--color-surface-soft)] px-1.5 py-0.5 rounded">
           eventbrite.com/event-xyz
         </code>
         , encode{" "}
-        <code className="text-xs bg-neutral-100 px-1.5 py-0.5 rounded">
+        <code className="text-xs bg-[var(--color-surface-soft)] px-1.5 py-0.5 rounded">
           porchlightstudios.com/open-house
         </code>
         . If the event changes, you update the redirect on your own site and
@@ -82,7 +82,7 @@ const ITEMS: { q: string; a: React.ReactNode }[] = [
         Built by one person as a side project. Source is on{" "}
         <a
           href="https://github.com/texastentialism/qr-forever"
-          className="underline hover:text-neutral-900"
+          className="underline hover:text-[var(--color-espresso)]"
         >
           GitHub
         </a>{" "}
@@ -122,22 +122,22 @@ const ITEMS: { q: string; a: React.ReactNode }[] = [
 export default function Faq() {
   return (
     <section className="mt-16">
-      <h2 className="text-lg font-semibold tracking-tight mb-4">
+      <h2 className="font-display text-2xl md:text-3xl font-semibold tracking-tight mb-5 text-[var(--color-ink)]">
         Good questions people ask
       </h2>
       <div className="space-y-2">
         {ITEMS.map((item, i) => (
           <details
             key={i}
-            className="group bg-white rounded-xl border border-neutral-200 shadow-sm overflow-hidden"
+            className="group bg-[var(--color-surface)] rounded-xl border border-[var(--color-line)] shadow-sm overflow-hidden"
           >
-            <summary className="cursor-pointer list-none px-5 py-4 flex items-center justify-between gap-4 hover:bg-neutral-50 transition-colors">
-              <span className="text-sm md:text-base font-medium text-neutral-900">
+            <summary className="cursor-pointer list-none px-5 py-4 flex items-center justify-between gap-4 hover:bg-[var(--color-surface-soft)] transition-colors">
+              <span className="text-sm md:text-base font-medium text-[var(--color-ink)]">
                 {item.q}
               </span>
-              <ChevronDown className="size-5 text-neutral-400 transition-transform group-open:rotate-180 shrink-0" />
+              <ChevronDown className="size-5 text-[var(--color-ink-faint)] transition-transform group-open:rotate-180 shrink-0" />
             </summary>
-            <div className="px-5 pb-5 pt-1 text-sm text-neutral-600 leading-relaxed border-t border-neutral-100">
+            <div className="px-5 pb-5 pt-1 text-sm text-[var(--color-ink-soft)] leading-relaxed border-t border-[var(--color-line)]">
               <div className="pt-4">{item.a}</div>
             </div>
           </details>

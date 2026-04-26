@@ -80,13 +80,13 @@ export default function HistoryPanel({
   }
 
   return (
-    <section className="bg-white rounded-2xl border border-neutral-200 p-5 shadow-sm">
+    <section className="bg-[var(--color-surface)] rounded-2xl border border-[var(--color-line)] p-5 shadow-sm">
       <div className="flex items-center justify-between mb-3 gap-2 flex-wrap">
-        <h2 className="text-sm font-medium text-neutral-700 flex items-center gap-2">
+        <h2 className="text-sm font-medium text-[var(--color-ink-soft)] flex items-center gap-2">
           <Clock className="size-4" />
           Your recent QRs
           {entries.length > 0 && (
-            <span className="text-xs text-neutral-400 font-normal">
+            <span className="text-xs text-[var(--color-ink-faint)] font-normal">
               · {entries.length}
             </span>
           )}
@@ -96,7 +96,7 @@ export default function HistoryPanel({
             type="button"
             onClick={handleExport}
             disabled={entries.length === 0}
-            className="inline-flex items-center gap-1 px-2.5 py-2 min-h-9 rounded hover:bg-neutral-100 text-neutral-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900"
+            className="inline-flex items-center gap-1 px-2.5 py-2 min-h-9 rounded hover:bg-[var(--color-surface-soft)] text-[var(--color-ink-soft)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-espresso)]"
             title="Download history as JSON"
           >
             <DownloadIcon className="size-3.5" />
@@ -105,7 +105,7 @@ export default function HistoryPanel({
           <button
             type="button"
             onClick={() => importInputRef.current?.click()}
-            className="inline-flex items-center gap-1 px-2.5 py-2 min-h-9 rounded hover:bg-neutral-100 text-neutral-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900"
+            className="inline-flex items-center gap-1 px-2.5 py-2 min-h-9 rounded hover:bg-[var(--color-surface-soft)] text-[var(--color-ink-soft)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-espresso)]"
             title="Import JSON export"
           >
             <Upload className="size-3.5" />
@@ -119,7 +119,7 @@ export default function HistoryPanel({
                   onClear();
                 }
               }}
-              className="inline-flex items-center gap-1 px-2.5 py-2 min-h-9 rounded hover:bg-red-50 text-neutral-500 hover:text-red-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+              className="inline-flex items-center gap-1 px-2.5 py-2 min-h-9 rounded hover:bg-red-50 text-[var(--color-ink-muted)] hover:text-red-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
               title="Clear history"
             >
               <Trash2 className="size-3.5" />
@@ -138,7 +138,7 @@ export default function HistoryPanel({
       </div>
 
       {entries.length === 0 ? (
-        <p className="text-sm text-neutral-500 py-4 text-center">
+        <p className="text-sm text-[var(--color-ink-muted)] py-4 text-center">
           Your recent QRs will show up here — stored only in your browser.
           <br />
           <span className="text-xs">
@@ -148,27 +148,27 @@ export default function HistoryPanel({
       ) : null}
 
       {entries.length > 0 && (
-        <div className="mb-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3 text-xs text-neutral-600 leading-relaxed">
-          <span className="font-medium text-neutral-800">
+        <div className="mb-3 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-soft)] p-3 text-xs text-[var(--color-ink-soft)] leading-relaxed">
+          <span className="font-medium text-[var(--color-ink)]">
             Heads up —
           </span>{" "}
           this list lives in THIS browser on THIS device. If you clear your
           browser data, switch to a different browser, or use a different
           computer/phone, you won{"'"}t see these QRs there.{" "}
-          <strong className="text-neutral-800">
+          <strong className="text-[var(--color-ink)]">
             Hit &quot;Export&quot; to download a backup file
           </strong>
           {" "}
           (save it to Google Drive, email it to yourself, etc.) — you can{" "}
-          <strong className="text-neutral-800">&quot;Import&quot;</strong> it
+          <strong className="text-[var(--color-ink)]">&quot;Import&quot;</strong> it
           later on any device to get all your QRs back and edit / re-download
           any of them.{" "}
           <br />
-          <span className="text-neutral-500">
+          <span className="text-[var(--color-ink-muted)]">
             (Working on proper accounts to remove this step — see{" "}
             <a
               href="/sign-in"
-              className="underline hover:text-neutral-900"
+              className="underline hover:text-[var(--color-ink)]"
             >
               family sync
             </a>
@@ -182,29 +182,29 @@ export default function HistoryPanel({
           {entries.map((entry) => (
             <li
               key={entry.id}
-              className="group flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-neutral-50 border border-transparent hover:border-neutral-200 transition-all"
+              className="group flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-[var(--color-surface-soft)] border border-transparent hover:border-[var(--color-line)] transition-all"
             >
               <button
                 onClick={() => onLoad(entry)}
                 className="flex-1 text-left min-w-0"
                 title="Load this QR config"
               >
-                <div className="text-sm font-medium text-neutral-900 truncate">
+                <div className="text-sm font-medium text-[var(--color-ink)] truncate">
                   {safeHostname(entry.url)}
-                  <span className="text-neutral-400 font-normal">
+                  <span className="text-[var(--color-ink-faint)] font-normal">
                     {safePath(entry.url)}
                   </span>
                 </div>
-                <div className="text-xs text-neutral-500 flex items-center gap-2 mt-0.5">
+                <div className="text-xs text-[var(--color-ink-muted)] flex items-center gap-2 mt-0.5">
                   <span>{formatRelativeTime(entry.createdAt)}</span>
-                  <span className="size-1 rounded-full bg-neutral-300" />
+                  <span className="size-1 rounded-full bg-[var(--color-line-strong)]" />
                   <StyleChip entry={entry} />
                 </div>
               </button>
               <button
                 type="button"
                 onClick={() => onRemove(entry.id)}
-                className="opacity-60 sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100 p-2.5 min-h-11 min-w-11 rounded hover:bg-red-50 text-neutral-400 hover:text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 transition-all grid place-items-center"
+                className="opacity-60 sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100 p-2.5 min-h-11 min-w-11 rounded hover:bg-red-50 text-[var(--color-ink-faint)] hover:text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 transition-all grid place-items-center"
                 title="Remove from history"
                 aria-label="Remove"
               >
@@ -223,7 +223,7 @@ function StyleChip({ entry }: { entry: HistoryEntry }) {
   return (
     <span className="inline-flex items-center gap-1">
       <span
-        className="inline-block size-3 rounded-sm border border-neutral-200"
+        className="inline-block size-3 rounded-sm border border-[var(--color-line)]"
         style={{
           background: bgTransparent
             ? "repeating-conic-gradient(#d4d4d4 0% 25%, #fff 0% 50%) 0 0 / 4px 4px"

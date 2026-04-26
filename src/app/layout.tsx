@@ -1,11 +1,23 @@
 import type { Metadata, Viewport } from "next";
-import { Geist } from "next/font/google";
+import { Fraunces, IBM_Plex_Sans } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Source font variables get unique names so the mapping in @theme inline is
+// explicit (--font-sans → --font-ibm-plex). Avoids a self-referencing
+// passthrough that confuses readers and tools.
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
   subsets: ["latin"],
+  axes: ["opsz", "SOFT"],
+  display: "swap",
+});
+
+const plexSans = IBM_Plex_Sans({
+  variable: "--font-ibm-plex",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 const SITE_URL =
@@ -59,10 +71,9 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#fafaf7" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
-  ],
+  // Identity is light-only (Espresso · cream). No dark variant ships yet, so a
+  // dark themeColor would frame the cream surface in black on dark-mode mobile.
+  themeColor: "#f7f1e3",
   width: "device-width",
   initialScale: 1,
 };
@@ -73,11 +84,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} h-full antialiased`}>
-      <body
-        className="min-h-full text-neutral-900 flex flex-col"
-        style={{ backgroundColor: "#fafaf7" }}
-      >
+    <html
+      lang="en"
+      className={`${fraunces.variable} ${plexSans.variable} h-full antialiased`}
+    >
+      <body className="min-h-full flex flex-col">
         {children}
         <Analytics />
       </body>
