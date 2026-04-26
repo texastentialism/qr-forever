@@ -51,11 +51,21 @@ test.describe("Smoke tests", () => {
     expect(value).toMatch(/^https?:\/\//);
   });
 
-  test("URL validation shows incomplete for partial input", async ({ page }) => {
+  test("URL validation shows a guiding hint for partial input", async ({ page }) => {
     await page.goto("/");
     const input = page.getByLabel("Destination URL");
+
+    // Input with no dot → hint says to add a domain
     await input.fill("not-a-url");
-    await expect(page.getByText("incomplete")).toBeVisible();
+    await expect(page.getByText(/add a domain/i)).toBeVisible();
+
+    // Input with a space → hint flags spaces explicitly
+    await input.fill("a b c");
+    await expect(page.getByText(/spaces/i)).toBeVisible();
+
+    // Valid URL → hint replaced by "Will encode"
+    await input.fill("example.com");
+    await expect(page.getByText(/will encode/i)).toBeVisible();
   });
 
   // Edge runtime OG routes can be flaky in local Turbopack dev.
